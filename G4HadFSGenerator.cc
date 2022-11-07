@@ -60,8 +60,8 @@ int main( int , char** ) {
   auto analysisManager = G4AnalysisManager::Instance();
   analysisManager->OpenFile("had.root");
   analysisManager->CreateH1("Momentum_conservation","Momentum_conservation",2000,-0.2,0.2);
-  analysisManager->CreateH1("Neutron_kenergy","Neutron_kenergy",1000,0.0,200.);
-  
+  analysisManager->CreateH1("Neutron_kenergy","Neutron_kenergy",1000,0.0,100.);
+  analysisManager->CreateH1("Pi0_kenergy","Pi0_kenergy",1000,0.0,100.);
  
   //Printout the configuration
   //
@@ -87,6 +87,7 @@ int main( int , char** ) {
   G4int nsecondaries;
   G4double mz_conservation;
   G4double neutron_kenergy;
+  G4double pizero_kenergy;
     
   for (std::size_t i=0; i<events; i++){
       
@@ -106,6 +107,9 @@ int main( int , char** ) {
         G4cout<<"PRIMARY NOT KILLED!"<<G4endl;
         std::abort();
     }
+
+    //Loop through secondaries
+    //
     for (G4int j=0; j<nsecondaries; j++){
 
       //Get dynamic particle
@@ -116,23 +120,31 @@ int main( int , char** ) {
       //
       mz_conservation = mz_conservation - particle->Get4Momentum()[2]/CLHEP::GeV;
 
-      //Add kinetic energy of neutrons
+      //Add kinetic energy of neutrons, pi0
       //
       if ( particle->GetDefinition() == G4Neutron::Neutron() ){
         
         neutron_kenergy += particle->GetKineticEnergy()/CLHEP::GeV;
 
       } 
+      if ( particle->GetDefinition() == G4PionZero::PionZero() ){
+      
+        pizero_kenergy += particle->GetKineticEnergy()/CLHEP::GeV;
+      
+      }
     
     }
 
     analysisManager->FillH1(0, mz_conservation);
     analysisManager->FillH1(1, neutron_kenergy);
+    analysisManager->FillH1(2, pizero_kenergy);
 
     neutron_kenergy = 0.;
+    pizero_kenergy = 0.;
+
   }
 
-  //Clonse and write output file
+  //Close and write output file
   //
   analysisManager->Write();
   analysisManager->CloseFile();
