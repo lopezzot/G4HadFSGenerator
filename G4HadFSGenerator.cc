@@ -6,6 +6,8 @@
 // \start date: 7 November 2022
 //**************************************************
 
+#include <algorithm>
+#include <iostream>
 #include <iomanip>
 #include "globals.hh"
 #include "G4ios.hh"
@@ -23,16 +25,17 @@
 #include "G4IonTable.hh"
 #include "G4AnalysisManager.hh"
 
-namespace physiscslists { std::vector<G4String> list{"FTFP_BERT",
-                                                     "FTFP_BERT_ATL",
-                                                     "QGSP_BERT",
-                                                     "QGSP_BIC",
-                                                     "FTFP_INCLXX",
-                                                     "FTFP","QGSP",
-                                                     "BERT",
-                                                     "BIC",
-                                                     "IonBIC",
-                                                     "INCL"}; }
+namespace pl { std::vector<G4String> list{"FTFP_BERT",
+                                          "FTFP_BERT_ATL",
+                                          "QGSP_BERT",
+                                          "QGSP_BIC",
+                                          "FTFP_INCLXX",
+                                          "FTFP",
+                                          "QGSP",
+                                          "BERT",
+                                          "BIC",
+                                          "IonBIC",
+                                          "INCL"}; }
 
 namespace CLIoutput {
   void PrintError(){ G4cerr<<"Wrong usage. Options:\n"
@@ -69,6 +72,14 @@ int main( int argc, char** argv ) {
       return 1;
     }
   }
+
+  //Check namePhysics is in physicslists
+  //
+  if (std::find(pl::list.begin(), pl::list.end(), namePhysics) == pl::list.end()){
+    G4cerr<<namePhysics<<" is not in: "<<G4endl;
+    for (auto &i : pl::list){G4cout<<i<<G4endl;}
+    return 1;
+  } 
   
   //The HadronicGenerator from Hadr09 example
   //
