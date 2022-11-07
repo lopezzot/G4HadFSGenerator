@@ -82,13 +82,12 @@ int main( int , char** ) {
   G4int nsec;
   G4double mresidual;
     
-
   for (int i=0; i<600; i++){
     aChange = theHadronicGenerator->GenerateInteraction( projectile, projectileEnergy,
                                                        aDirection, material );
   
     nsec = aChange ? aChange->GetNumberOfSecondaries() : 0;
-    G4double mresidual = dParticle.GetTotalMomentum()/CLHEP::GeV;
+    mresidual = dParticle.GetTotalMomentum()/CLHEP::GeV;
     G4TrackStatus leadStatus = aChange->GetTrackStatus();
     if (leadStatus != 2){
         G4cout<<"NOT KILLED!"<<G4endl;
