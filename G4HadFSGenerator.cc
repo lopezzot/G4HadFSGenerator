@@ -23,37 +23,69 @@
 #include "G4IonTable.hh"
 #include "G4AnalysisManager.hh"
 
-int main( int , char** ) {
+namespace physiscslists { std::vector<G4String> list{"FTFP_BERT",
+                                                     "FTFP_BERT_ATL",
+                                                     "QGSP_BERT",
+                                                     "QGSP_BIC",
+                                                     "FTFP_INCLXX",
+                                                     "FTFP","QGSP",
+                                                     "BERT",
+                                                     "BIC",
+                                                     "IonBIC",
+                                                     "INCL"}; }
+
+namespace CLIoutput {
+  void PrintError(){ G4cerr<<"Wrong usage. Options:\n"
+                           <<"-pl physicslist (FTFP_BERT)\n"
+                           <<"-p particle (proton)\n"
+                           <<"-e energy_geV (100)"<<G4endl; }
+}
+
+int main( int argc, char** argv ) {
   
   G4cout << "=== Using HadronicGenerator for final states sampling test, ===" << G4endl
-         << "    this test is based on example Hadr09                      " << G4endl;
+         << "    this test is based on example Hadr09.                      " << G4endl;
 
   // See the HadronicGenerator class for the possibilities and meaning of the "physics cases".
   // ( In short, it is the name of the Geant4 hadronic model used for the simulation of
   //   the collision, with the possibility of having a transition between two models in
   //   a given energy interval, as in physics lists. )
-  const G4String namePhysics = "FTFP_BERT";        //***LOOKHERE***  PHYSICS CASE
-  //const G4String namePhysics = "FTFP_BERT_ATL";
-  //const G4String namePhysics = "QGSP_BERT";
-  //const G4String namePhysics = "QGSP_BIC";
-  //const G4String namePhysics = "FTFP_INCLXX";
-  //const G4String namePhysics = "FTFP";
-  //const G4String namePhysics = "QGSP";
-  //const G4String namePhysics = "BERT";
-  //const G4String namePhysics = "BIC";
-  //const G4String namePhysics = "IonBIC";
-  //const G4String namePhysics = "INCL";
+
+  //Initial variables (physics list, particle, energy)
+  //
+  G4String namePhysics;
+  G4String nameProjectile;
+  G4double energyProjectile;
+
+  //CLI variables
+  //
+  if (argc==1) { CLIoutput::PrintError(); return 1;}
+  for ( G4int i=1; i<argc; i=i+2 ) {
+    if ( G4String( argv[i] ) == "-pl" ) namePhysics = argv[i+1];
+    else if ( G4String( argv[i] ) == "-p" ) nameProjectile = argv[i+1];
+    else if ( G4String( argv[i] ) == "-e" ) energyProjectile = G4UIcommand::ConvertToDouble(argv[i+1]);
+    else {
+      CLIoutput::PrintError();
+      return 1;
+    }
+  }
   
+  //The HadronicGenerator from Hadr09 example
+  //
+  HadronicGenerator* theHadronicGenerator = new HadronicGenerator( namePhysics );
+
   //Set primary particle
   //
-  G4ParticleDefinition* projectile = G4Proton::Proton();
-  G4ThreeVector aDirection = G4ThreeVector( 0.0, 0.0, 1.0 ); 
-  G4double projectileEnergy = 100*CLHEP::GeV; 
+  G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
+  partTable->SetReadiness();
+  G4ParticleDefinition* projectile = partTable->FindParticle( nameProjectile );
+  G4ThreeVector aDirection = G4ThreeVector( 0.0, 0.0, 1.0 ); //along z
+  G4double projectileEnergy = energyProjectile*CLHEP::GeV; 
   G4DynamicParticle dParticle( projectile, aDirection, projectileEnergy );
 
   //Set material
   //
-  G4Material* material = G4NistManager::Instance()->FindOrBuildMaterial( "G4_N" );
+  G4Material* material = G4NistManager::Instance()->FindOrBuildMaterial( "G4_H" );
 
   //Create root output file
   //
@@ -76,9 +108,6 @@ int main( int , char** ) {
          << "===================================================" << G4endl
          << G4endl;
 
-  //The HadronicGenerator from Hadr09 example
-  //
-  HadronicGenerator* theHadronicGenerator = new HadronicGenerator( namePhysics );
 
   //Variables of interest
   //
@@ -108,8 +137,6 @@ int main( int , char** ) {
         std::abort();
     }
 
-    //Loop through secondaries
-    //
     for (G4int j=0; j<nsecondaries; j++){
 
       //Get dynamic particle
@@ -141,6 +168,7 @@ int main( int , char** ) {
 
     neutron_kenergy = 0.;
     pizero_kenergy = 0.;
+    aChange = nullptr;
 
   }
 
@@ -150,23 +178,6 @@ int main( int , char** ) {
   analysisManager->CloseFile();
   G4cout<<"The end."<<G4endl;  
 
-  /*
-  if ( true ) {
-      G4cout << G4endl << "\t --> #secondaries=" << nsec 
-             << " ; impactParameter[fm]=" << theHadronicGenerator->GetImpactParameter() / fermi
-	     << " ; #projectileSpectatorNucleons=" << theHadronicGenerator->GetNumberOfProjectileSpectatorNucleons()
-	     << " ; #targetSpectatorNucleons=" << theHadronicGenerator->GetNumberOfTargetSpectatorNucleons()
-	     << " ; #NNcollisions=" << theHadronicGenerator->GetNumberOfNNcollisions() << G4endl;
-      G4cout << "\t \t List of produced secondaries: " << G4endl;
-      // Loop over produced secondaries and eventually print out some information.
-      for ( G4int j = 0; j < nsec; ++j ) {
-        const G4DynamicParticle* sec = aChange->GetSecondary(j)->GetDynamicParticle();
-        G4cout << "\t \t \t j=" << j << "\t" << sec->GetDefinition()->GetParticleName()
-               << "\t p=" << sec->Get4Momentum() << " MeV" << G4endl;
-        delete aChange->GetSecondary(j);
-      }
-  }
-  */
 }
 
 //**************************************************
