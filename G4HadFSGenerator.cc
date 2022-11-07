@@ -41,7 +41,8 @@ namespace CLIoutput {
   void PrintError(){ G4cerr<<"Wrong usage. Options:\n"
                            <<"-pl physicslist (FTFP_BERT)\n"
                            <<"-p particle (proton)\n"
-                           <<"-e energy_geV (100)"<<G4endl; }
+                           <<"-e energy_geV (100)\n"
+                           <<"-m g4material (G4_Fe)"<<G4endl; }
 }
 
 int main( int argc, char** argv ) {
@@ -54,11 +55,12 @@ int main( int argc, char** argv ) {
   //   the collision, with the possibility of having a transition between two models in
   //   a given energy interval, as in physics lists. )
 
-  //Initial variables (physics list, particle, energy)
+  //Initial variables (physics list, particle, energy, material)
   //
   G4String namePhysics;
   G4String nameProjectile;
   G4double energyProjectile;
+  G4String nameMaterial;
 
   //CLI variables
   //
@@ -67,6 +69,7 @@ int main( int argc, char** argv ) {
     if ( G4String( argv[i] ) == "-pl" ) namePhysics = argv[i+1];
     else if ( G4String( argv[i] ) == "-p" ) nameProjectile = argv[i+1];
     else if ( G4String( argv[i] ) == "-e" ) energyProjectile = G4UIcommand::ConvertToDouble(argv[i+1]);
+    else if ( G4String( argv[i] ) == "-m" ) nameMaterial = argv[i+1];
     else {
       CLIoutput::PrintError();
       return 1;
@@ -96,7 +99,7 @@ int main( int argc, char** argv ) {
 
   //Set material
   //
-  G4Material* material = G4NistManager::Instance()->FindOrBuildMaterial( "G4_H" );
+  G4Material* material = G4NistManager::Instance()->FindOrBuildMaterial( nameMaterial );
 
   //Create root output file
   //
@@ -128,7 +131,7 @@ int main( int argc, char** argv ) {
   G4double mz_conservation;
   G4double neutron_kenergy;
   G4double pizero_kenergy;
-    
+ 
   for (std::size_t i=0; i<events; i++){
       
     aChange = theHadronicGenerator->GenerateInteraction( projectile, projectileEnergy,
