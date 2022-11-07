@@ -26,7 +26,7 @@
 int main( int , char** ) {
   
   G4cout << "=== Using HadronicGenerator for final states sampling test, ===" << G4endl
-         << "    this tests is based on example Hadr09                      " << G4endl;
+         << "    this test is based on example Hadr09                      " << G4endl;
 
   // See the HadronicGenerator class for the possibilities and meaning of the "physics cases".
   // ( In short, it is the name of the Geant4 hadronic model used for the simulation of
@@ -59,7 +59,9 @@ int main( int , char** ) {
   //
   auto analysisManager = G4AnalysisManager::Instance();
   analysisManager->OpenFile("had.root");
-  analysisManager->CreateH1("Momentum","Momentum",2000,-0.2,0.2);
+  analysisManager->CreateH1("Momentum_conservation","Momentum_conservation",2000,-0.2,0.2);
+  analysisManager->CreateH1("Neutron_kenergy","Neutron_kenergy",1000,0.0,200.);
+  
  
   //Printout the configuration
   //
@@ -78,35 +80,63 @@ int main( int , char** ) {
   //
   HadronicGenerator* theHadronicGenerator = new HadronicGenerator( namePhysics );
 
+  //Variables of interest
+  //
   G4VParticleChange* aChange = nullptr;
-  G4int nsec;
-  G4double mresidual;
+  std::size_t events = 10000;
+  G4int nsecondaries;
+  G4double mz_conservation;
+  G4double neutron_kenergy;
     
-  for (int i=0; i<600; i++){
+  for (std::size_t i=0; i<events; i++){
+      
     aChange = theHadronicGenerator->GenerateInteraction( projectile, projectileEnergy,
-                                                       aDirection, material );
+                                                         aDirection, material );
   
-    nsec = aChange ? aChange->GetNumberOfSecondaries() : 0;
-    mresidual = dParticle.GetTotalMomentum()/CLHEP::GeV;
+    nsecondaries = aChange ? aChange->GetNumberOfSecondaries() : 0;
+
+    //Initial momentum along z
+    //
+    mz_conservation = dParticle.GetTotalMomentum()/CLHEP::GeV;
+
+    //Check is primary is killed, otherwise abort
+    //
     G4TrackStatus leadStatus = aChange->GetTrackStatus();
     if (leadStatus != 2){
-        G4cout<<"NOT KILLED!"<<G4endl;
+        G4cout<<"PRIMARY NOT KILLED!"<<G4endl;
         std::abort();
     }
-    for (std::size_t j=0; j<nsec; j++){
-        mresidual = mresidual - aChange->GetSecondary(j)->GetDynamicParticle()->Get4Momentum()[2]/CLHEP::GeV; 
+    for (G4int j=0; j<nsecondaries; j++){
+
+      //Get dynamic particle
+      //
+      auto particle = aChange->GetSecondary(j)->GetDynamicParticle();
+
+      //Compute momentum conservation along z
+      //
+      mz_conservation = mz_conservation - particle->Get4Momentum()[2]/CLHEP::GeV;
+
+      //Add kinetic energy of neutrons
+      //
+      if ( particle->GetDefinition() == G4Neutron::Neutron() ){
+        
+        neutron_kenergy += particle->GetKineticEnergy()/CLHEP::GeV;
+
+      } 
+    
     }
-    G4cout<<mresidual<<" GeV"<<G4endl;
-    analysisManager->FillH1(0, mresidual);
+
+    analysisManager->FillH1(0, mz_conservation);
+    analysisManager->FillH1(1, neutron_kenergy);
+
+    neutron_kenergy = 0.;
   }
 
+  //Clonse and write output file
+  //
   analysisManager->Write();
   analysisManager->CloseFile();
-
-
-
-
-
+  G4cout<<"The end."<<G4endl;  
 
   /*
   if ( true ) {
@@ -125,7 +155,6 @@ int main( int , char** ) {
       }
   }
   */
-    G4cout<<"correct end"<<G4endl;  
 }
 
 //**************************************************
