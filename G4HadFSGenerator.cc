@@ -68,7 +68,7 @@ int main( int argc, char** argv ) {
   for ( G4int i=1; i<argc; i=i+2 ) {
     if ( G4String( argv[i] ) == "-pl" ) namePhysics = argv[i+1];
     else if ( G4String( argv[i] ) == "-p" ) nameProjectile = argv[i+1];
-    else if ( G4String( argv[i] ) == "-e" ) energyProjectile = G4UIcommand::ConvertToDouble(argv[i+1]);
+    else if (G4String( argv[i] ) == "-e") energyProjectile=G4UIcommand::ConvertToDouble(argv[i+1]);
     else if ( G4String( argv[i] ) == "-m" ) nameMaterial = argv[i+1];
     else {
       CLIoutput::PrintError();
@@ -104,10 +104,11 @@ int main( int argc, char** argv ) {
   //Create root output file
   //
   auto analysisManager = G4AnalysisManager::Instance();
-  analysisManager->OpenFile("had.root");
-  analysisManager->CreateH1("Momentum_conservation","Momentum_conservation",2000,-0.2,0.2);
-  analysisManager->CreateH1("Neutron_kenergy","Neutron_kenergy",1000,0.0,100.);
-  analysisManager->CreateH1("Pi0_kenergy","Pi0_kenergy",1000,0.0,100.);
+  G4String nameOutput = namePhysics+nameProjectile+std::to_string(energyProjectile).substr(0,4)+nameMaterial+".root";
+  analysisManager->OpenFile(nameOutput);
+  analysisManager->CreateH1("Momentum_conservation","Momentum_conservation",2000,-0.02,0.02);
+  analysisManager->CreateH1("Neutron_kenergy","Neutron_kenergy",1000,0.0,1.1*energyProjectile);
+  analysisManager->CreateH1("Pi0_kenergy","Pi0_kenergy",1000,0.0,1.1*energyProjectile);
  
   //Printout the configuration
   //
