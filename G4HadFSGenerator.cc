@@ -199,7 +199,7 @@ int main( int argc, char** argv ) {
       //how: kinetic energy projectile - kinetic energy of nucleons (p and n)
       //- kinetic energy of mesons - kinetic energy of nuclear fragments (baryon number > 1)
       //
-      if ( particle->GetDefinition() == G4Neutron::Neutron() || particle->GetDefinition() == G4Proton::Proton() || particle->GetDefinition()->GetBaryonNumber() > 1 ){
+      if ( particle->GetDefinition() == G4Neutron::Neutron() || particle->GetDefinition() == G4Proton::Proton() || particle->GetDefinition()->GetBaryonNumber() >= 1 ){
         e_loss = e_loss - particle->GetKineticEnergy()/CLHEP::GeV;
       }
       else {
