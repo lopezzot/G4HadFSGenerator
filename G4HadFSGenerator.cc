@@ -192,7 +192,7 @@ int main( int argc, char** argv ) {
       } 
       if ( particle->GetDefinition() == G4PionZero::PionZero() ){
       
-        pizero_energy += particle->GetKineticEnergy()/CLHEP::GeV;
+        pizero_energy += particle->GetTotalEnergy()/CLHEP::GeV;
       
       }
     
