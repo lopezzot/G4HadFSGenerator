@@ -113,7 +113,7 @@ int main( int argc, char** argv ) {
   analysisManager->OpenFile(nameOutput);
   analysisManager->CreateH1("Momentum_conservation","Momentum_conservation",2000,-0.02,0.02);
   analysisManager->CreateH1("Neutron_kenergy","Neutron_kenergy",1000,0.0,1.1*energyProjectile);
-  analysisManager->CreateH1("Pi0_kenergy","Pi0_kenergy",1000,0.0,1.1*energyProjectile);
+  analysisManager->CreateH1("Pi0_energy","Pi0_energy",1000,0.0,1.1*energyProjectile);
   analysisManager->CreateH1("E_loss","E_loss",2000,0.,2.0*bindingEnergy/CLHEP::GeV);
  
   //Printout the configuration
@@ -138,7 +138,7 @@ int main( int argc, char** argv ) {
   G4int nsecondaries;
   G4double mz_conservation;
   G4double neutron_kenergy;
-  G4double pizero_kenergy;
+  G4double pizero_energy;
   G4double e_loss;
  
   for (std::size_t i=0; i<events; i++){
@@ -192,7 +192,7 @@ int main( int argc, char** argv ) {
       } 
       if ( particle->GetDefinition() == G4PionZero::PionZero() ){
       
-        pizero_kenergy += particle->GetKineticEnergy()/CLHEP::GeV;
+        pizero_energy += particle->GetKineticEnergy()/CLHEP::GeV;
       
       }
     
@@ -200,11 +200,11 @@ int main( int argc, char** argv ) {
 
     analysisManager->FillH1(0, mz_conservation);
     analysisManager->FillH1(1, neutron_kenergy);
-    analysisManager->FillH1(2, pizero_kenergy);
+    analysisManager->FillH1(2, pizero_energy);
     analysisManager->FillH1(3, e_loss);
 
     neutron_kenergy = 0.;
-    pizero_kenergy = 0.;
+    pizero_energy = 0.;
     aChange = nullptr;
 
   }
