@@ -25,6 +25,7 @@
 #include "G4IonTable.hh"
 #include "G4AnalysisManager.hh"
 #include "G4NucleiProperties.hh"
+#include <filesystem>
 
 namespace pl { std::vector<G4String> list{"FTFP_BERT",
                                           "FTFP_BERT_ATL",
@@ -114,8 +115,11 @@ int main( int argc, char** argv ) {
   analysisManager->CreateH1("Momentum_conservation","Momentum_conservation",2000,-0.02,0.02);
   analysisManager->CreateH1("Neutron_kenergy","Neutron_kenergy",1000,0.0,1.1*energyProjectile);
   analysisManager->CreateH1("Pi0_energy","Pi0_energy",1000,0.0,1.1*energyProjectile);
-  analysisManager->CreateH1("E_loss","E_loss",2000,0.,2.0*bindingEnergy/CLHEP::GeV);
+  analysisManager->CreateH1("E_loss","E_loss",2000,-1.0,2.0*bindingEnergy/CLHEP::GeV);
  
+  CLHEP::HepRandom::setTheEngine( new CLHEP::RanecuEngine() );
+  CLHEP::HepRandom::setTheSeed(123);
+
   //Printout the configuration
   //
   G4cout << G4endl
@@ -133,16 +137,35 @@ int main( int argc, char** argv ) {
 
   //Variables of interest
   //
+  G4bool saveRandomStatus = true;
   G4VParticleChange* aChange = nullptr;
-  std::size_t events = 10000;
+  std::size_t startEvent = 0;
+  std::size_t events = 100;
   G4int nsecondaries;
   G4double mz_conservation;
   G4double neutron_kenergy;
   G4double pizero_energy;
   G4double e_loss;
+  G4bool redoEvent = true;
+
+  if (redoEvent){
+      G4cout<<"which event: "<<G4endl;
+      std::cin >> startEvent;
+      events = startEvent+1;
+  }
  
-  for (std::size_t i=0; i<events; i++){
+  for (std::size_t i=startEvent; i<events; i++){
       
+    if (saveRandomStatus && (redoEvent==false)){
+        std::string fileName = "event_"+std::to_string(i)+"rndm.stat";
+        CLHEP::HepRandom::getTheEngine()->saveStatus(fileName.c_str());
+    }
+    if (redoEvent){
+        G4cout<<"Redoing event: "<<i<<G4endl;
+        std::string fileName = "event_"+std::to_string(i)+"rndm.stat";
+        CLHEP::HepRandom::getTheEngine()->restoreStatus(fileName.c_str());
+    }
+
     aChange = theHadronicGenerator->GenerateInteraction( projectile, projectileEnergy,
                                                          aDirection, material );
   
@@ -202,6 +225,7 @@ int main( int argc, char** argv ) {
     analysisManager->FillH1(1, neutron_kenergy);
     analysisManager->FillH1(2, pizero_energy);
     analysisManager->FillH1(3, e_loss);
+    G4cout<<"Event "<<i<<" e_loss GeV "<<e_loss<<G4endl;
 
     neutron_kenergy = 0.;
     pizero_energy = 0.;
