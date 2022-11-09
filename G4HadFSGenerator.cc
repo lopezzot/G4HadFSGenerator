@@ -109,6 +109,7 @@ int main( int argc, char** argv ) {
   analysisManager->CreateH1("Momentum_conservation","Momentum_conservation",2000,-0.02,0.02);
   analysisManager->CreateH1("Neutron_kenergy","Neutron_kenergy",1000,0.0,1.1*energyProjectile);
   analysisManager->CreateH1("Pi0_kenergy","Pi0_kenergy",1000,0.0,1.1*energyProjectile);
+  analysisManager->CreateH1("Ek_conservation","Ek_conservation",2000,0.,0.7*energyProjectile);
  
   //Printout the configuration
   //
@@ -132,6 +133,7 @@ int main( int argc, char** argv ) {
   G4double mz_conservation;
   G4double neutron_kenergy;
   G4double pizero_kenergy;
+  G4double ek_conservation;
  
   for (std::size_t i=0; i<events; i++){
       
@@ -140,9 +142,11 @@ int main( int argc, char** argv ) {
   
     nsecondaries = aChange ? aChange->GetNumberOfSecondaries() : 0;
 
-    //Initial momentum along z
+    //Initial momentum along z,
+    //initial kinetic energy
     //
     mz_conservation = dParticle.GetTotalMomentum()/CLHEP::GeV;
+    ek_conservation = dParticle.GetKineticEnergy()/CLHEP::GeV;
 
     //Check is primary is killed, otherwise abort
     //
@@ -158,9 +162,11 @@ int main( int argc, char** argv ) {
       //
       auto particle = aChange->GetSecondary(j)->GetDynamicParticle();
 
-      //Compute momentum conservation along z
+      //Compute momentum conservation along z,
+      //kinetic energy (non) conservation
       //
       mz_conservation = mz_conservation - particle->Get4Momentum()[2]/CLHEP::GeV;
+      ek_conservation = ek_conservation - particle->GetKineticEnergy()/CLHEP::GeV;
 
       //Add kinetic energy of neutrons, pi0
       //
@@ -180,6 +186,7 @@ int main( int argc, char** argv ) {
     analysisManager->FillH1(0, mz_conservation);
     analysisManager->FillH1(1, neutron_kenergy);
     analysisManager->FillH1(2, pizero_kenergy);
+    analysisManager->FillH1(3, ek_conservation);
 
     neutron_kenergy = 0.;
     pizero_kenergy = 0.;
