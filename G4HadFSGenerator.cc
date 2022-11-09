@@ -24,6 +24,7 @@
 #include "G4ParticleTable.hh"
 #include "G4IonTable.hh"
 #include "G4AnalysisManager.hh"
+#include "G4NucleiProperties.hh"
 
 namespace pl { std::vector<G4String> list{"FTFP_BERT",
                                           "FTFP_BERT_ATL",
@@ -97,9 +98,13 @@ int main( int argc, char** argv ) {
   G4double projectileEnergy = energyProjectile*CLHEP::GeV; 
   G4DynamicParticle dParticle( projectile, aDirection, projectileEnergy );
 
-  //Set material
+  //Set material, get nuclear mass and binding energy
   //
   G4Material* material = G4NistManager::Instance()->FindOrBuildMaterial( nameMaterial );
+  G4NucleiProperties NucleiProperties;
+  const G4Element* element = material->GetElement(0);
+  G4double nuclearMass = NucleiProperties.GetNuclearMass( element->GetN(), element->GetZ() );
+  G4double bindingEnergy = NucleiProperties.GetBindingEnergy( element->GetN(), element->GetZ() );
 
   //Create root output file
   //
@@ -109,7 +114,7 @@ int main( int argc, char** argv ) {
   analysisManager->CreateH1("Momentum_conservation","Momentum_conservation",2000,-0.02,0.02);
   analysisManager->CreateH1("Neutron_kenergy","Neutron_kenergy",1000,0.0,1.1*energyProjectile);
   analysisManager->CreateH1("Pi0_kenergy","Pi0_kenergy",1000,0.0,1.1*energyProjectile);
-  analysisManager->CreateH1("Ek_conservation","Ek_conservation",2000,0.,0.7*energyProjectile);
+  analysisManager->CreateH1("E_loss","E_loss",2000,0.,2.0*bindingEnergy/CLHEP::GeV);
  
   //Printout the configuration
   //
@@ -121,9 +126,10 @@ int main( int argc, char** argv ) {
          << "Etot: " << dParticle.GetTotalEnergy()/CLHEP::GeV << " GeV" << G4endl
          << "Momentum: " << dParticle.GetTotalMomentum()/CLHEP::GeV << " GeV" << G4endl
          << "Material: " << material->GetName() << G4endl
+         << "Nuclear Mass: " << nuclearMass/CLHEP::GeV << " GeV" << G4endl
+         << "Binding Energy: " << bindingEnergy/CLHEP::GeV << " GeV" << G4endl
          << "===================================================" << G4endl
          << G4endl;
-
 
   //Variables of interest
   //
@@ -133,7 +139,7 @@ int main( int argc, char** argv ) {
   G4double mz_conservation;
   G4double neutron_kenergy;
   G4double pizero_kenergy;
-  G4double ek_conservation;
+  G4double e_loss;
  
   for (std::size_t i=0; i<events; i++){
       
@@ -146,7 +152,7 @@ int main( int argc, char** argv ) {
     //initial kinetic energy
     //
     mz_conservation = dParticle.GetTotalMomentum()/CLHEP::GeV;
-    ek_conservation = dParticle.GetKineticEnergy()/CLHEP::GeV;
+    e_loss = dParticle.GetKineticEnergy()/CLHEP::GeV;
 
     //Check is primary is killed, otherwise abort
     //
@@ -163,11 +169,20 @@ int main( int argc, char** argv ) {
       auto particle = aChange->GetSecondary(j)->GetDynamicParticle();
 
       //Compute momentum conservation along z,
-      //kinetic energy (non) conservation
       //
       mz_conservation = mz_conservation - particle->Get4Momentum()[2]/CLHEP::GeV;
-      ek_conservation = ek_conservation - particle->GetKineticEnergy()/CLHEP::GeV;
 
+      //Compute energy lost to release nucleons
+      //how: kinetic energy projectile - kinetic energy of nucleons (p and n)
+      //- kinetic energy of mesons - kinetic energy of nuclear fragments (baryon number > 1)
+      //
+      if ( particle->GetDefinition() == G4Neutron::Neutron() || particle->GetDefinition() == G4Proton::Proton() || particle->GetDefinition()->GetBaryonNumber() > 1 ){
+        e_loss = e_loss - particle->GetKineticEnergy()/CLHEP::GeV;
+      }
+      else {
+        e_loss = e_loss - particle->GetTotalEnergy()/CLHEP::GeV;
+      }
+      
       //Add kinetic energy of neutrons, pi0
       //
       if ( particle->GetDefinition() == G4Neutron::Neutron() ){
@@ -186,7 +201,7 @@ int main( int argc, char** argv ) {
     analysisManager->FillH1(0, mz_conservation);
     analysisManager->FillH1(1, neutron_kenergy);
     analysisManager->FillH1(2, pizero_kenergy);
-    analysisManager->FillH1(3, ek_conservation);
+    analysisManager->FillH1(3, e_loss);
 
     neutron_kenergy = 0.;
     pizero_kenergy = 0.;
