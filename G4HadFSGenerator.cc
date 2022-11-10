@@ -140,13 +140,13 @@ int main( int argc, char** argv ) {
   G4bool saveRandomStatus = true;
   G4VParticleChange* aChange = nullptr;
   std::size_t startEvent = 0;
-  std::size_t events = 100;
+  std::size_t events = 10000;
   G4int nsecondaries;
   G4double mz_conservation;
   G4double neutron_kenergy;
   G4double pizero_energy;
   G4double e_loss;
-  G4bool redoEvent = true;
+  G4bool redoEvent = false;
 
   if (redoEvent){
       G4cout<<"which event: "<<G4endl;
@@ -171,11 +171,15 @@ int main( int argc, char** argv ) {
   
     nsecondaries = aChange ? aChange->GetNumberOfSecondaries() : 0;
 
-    //Initial momentum along z,
-    //initial kinetic energy
+    //Initial momentum along z
     //
     mz_conservation = dParticle.GetTotalMomentum()/CLHEP::GeV;
-    e_loss = dParticle.GetKineticEnergy()/CLHEP::GeV;
+
+    //Initial particle energy (total energy for mesons, kinetic energy for baryons)
+    //
+    if ( dParticle.GetDefinition()->GetBaryonNumber() >= 1){
+        e_loss = dParticle.GetKineticEnergy()/CLHEP::GeV; }
+    else { e_loss = dParticle.GetTotalEnergy()/CLHEP::GeV; }
 
     //Check is primary is killed, otherwise abort
     //
