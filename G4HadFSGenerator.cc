@@ -44,7 +44,10 @@ namespace CLIoutput {
                            <<"-pl physicslist (FTFP_BERT)\n"
                            <<"-p particle (proton)\n"
                            <<"-e energy_geV (100)\n"
-                           <<"-m g4material (G4_Fe)"<<G4endl; }
+                           <<"-m g4material (G4_Fe)\n"
+                           <<"-seed 1/0 (optional)\n"
+                           <<"-redo 1/0 (optional)\n"
+                           <<G4endl; }
 }
 
 int main( int argc, char** argv ) {
@@ -63,6 +66,8 @@ int main( int argc, char** argv ) {
   G4String nameProjectile;
   G4double energyProjectile;
   G4String nameMaterial;
+  G4bool saveRandomStatus = false;
+  G4bool redoEvent = false;
 
   //CLI variables
   //
@@ -72,6 +77,8 @@ int main( int argc, char** argv ) {
     else if ( G4String( argv[i] ) == "-p" ) nameProjectile = argv[i+1];
     else if (G4String( argv[i] ) == "-e") energyProjectile=G4UIcommand::ConvertToDouble(argv[i+1]);
     else if ( G4String( argv[i] ) == "-m" ) nameMaterial = argv[i+1];
+    else if (G4String( argv[i] )=="-seed") saveRandomStatus = G4UIcommand::ConvertToInt(argv[i+1]);
+    else if (G4String( argv[i])=="-redo") redoEvent = G4UIcommand::ConvertToInt(argv[i+1]);
     else {
       CLIoutput::PrintError();
       return 1;
@@ -137,7 +144,6 @@ int main( int argc, char** argv ) {
 
   //Variables of interest
   //
-  G4bool saveRandomStatus = true;
   G4VParticleChange* aChange = nullptr;
   std::size_t startEvent = 0;
   std::size_t events = 10000;
@@ -146,7 +152,6 @@ int main( int argc, char** argv ) {
   G4double neutron_kenergy;
   G4double pizero_energy;
   G4double e_loss;
-  G4bool redoEvent = false;
 
   if (redoEvent){
       G4cout<<"which event: "<<G4endl;
@@ -229,7 +234,6 @@ int main( int argc, char** argv ) {
     analysisManager->FillH1(1, neutron_kenergy);
     analysisManager->FillH1(2, pizero_energy);
     analysisManager->FillH1(3, e_loss);
-    G4cout<<"Event "<<i<<" e_loss GeV "<<e_loss<<G4endl;
 
     neutron_kenergy = 0.;
     pizero_energy = 0.;
