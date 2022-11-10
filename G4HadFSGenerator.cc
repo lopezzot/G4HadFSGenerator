@@ -23,9 +23,15 @@
 #include "G4ProcessManager.hh"
 #include "G4ParticleTable.hh"
 #include "G4IonTable.hh"
+#include "G4Version.hh"
+#if G4VERSION_NUMBER < 1100
+#include "g4root.hh"  // replaced by G4AnalysisManager.h  in G4 v11 and up
+#else
 #include "G4AnalysisManager.hh"
+#endif
 #include "G4NucleiProperties.hh"
 #include <filesystem>
+#include <cmath>
 
 namespace pl { std::vector<G4String> list{"FTFP_BERT",
                                           "FTFP_BERT_ATL",
@@ -123,6 +129,8 @@ int main( int argc, char** argv ) {
   analysisManager->CreateH1("Neutron_kenergy","Neutron_kenergy",1000,0.0,1.1*energyProjectile);
   analysisManager->CreateH1("Pi0_energy","Pi0_energy",1000,0.0,1.1*energyProjectile);
   analysisManager->CreateH1("E_loss","E_loss",2000,-1.0,2.0*bindingEnergy/CLHEP::GeV);
+  analysisManager->CreateH1("Pi-_Pz","Pi-_Pz",100,-1.2*energyProjectile,1.2*energyProjectile);
+  analysisManager->CreateH1("Pi-_Pz_wPt","Pi-_Pz_wPt",100,-1.2*energyProjectile,1.2*energyProjectile);
  
   CLHEP::HepRandom::setTheEngine( new CLHEP::RanecuEngine() );
   CLHEP::HepRandom::setTheSeed(123);
@@ -146,11 +154,11 @@ int main( int argc, char** argv ) {
   //
   G4VParticleChange* aChange = nullptr;
   std::size_t startEvent = 0;
-  std::size_t events = 10000;
+  std::size_t events = 100000;
   G4int nsecondaries;
   G4double mz_conservation;
-  G4double neutron_kenergy;
-  G4double pizero_energy;
+  G4double neutron_kenergy = 0.;
+  G4double pizero_energy = 0.;
   G4double e_loss;
 
   if (redoEvent){
@@ -226,6 +234,15 @@ int main( int argc, char** argv ) {
       
         pizero_energy += particle->GetTotalEnergy()/CLHEP::GeV;
       
+      }
+
+      //Fille h1 pi- pz and pt
+      //
+      if ( particle->GetDefinition() == G4PionMinus::PionMinus() ){
+
+          analysisManager->FillH1(4, particle->Get4Momentum()[2]/CLHEP::GeV);
+          G4double pt = std::sqrt(std::pow(particle->GetMomentum()[0]/CLHEP::GeV,2)+std::pow(particle->GetMomentum()[1]/CLHEP::GeV,2));
+          analysisManager->FillH1(5, particle->Get4Momentum()[2]/CLHEP::GeV, pt);
       }
     
     }
