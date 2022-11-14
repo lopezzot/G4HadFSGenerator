@@ -214,9 +214,11 @@ HadronicGenerator::HadronicGenerator( const G4String physicsCase ) :
   // Model instance without energy constraint.
   // (Used for the case of FTFP model, and for light anti-ions in all physics lists.)
   G4TheoFSGenerator* theFTFPmodel = new G4TheoFSGenerator( "FTFP" );
-  if(G4VERSION_NUMBER>=1100){ 
+  #if G4VERSION_NUMBER>=1100 
     theFTFPmodel->SetMaxEnergy( G4HadronicParameters::Instance()->GetMaxEnergy() );
-  } else { theFTFPmodel->SetMaxEnergy(1e+08); }
+  #else 
+    theFTFPmodel->SetMaxEnergy(1e+08);
+  #endif
   G4GeneratorPrecompoundInterface* theCascade = new G4GeneratorPrecompoundInterface;
   theCascade->SetDeExcitation( thePreEquilib );
   theFTFPmodel->SetTransport( theCascade );
@@ -234,34 +236,42 @@ HadronicGenerator::HadronicGenerator( const G4String physicsCase ) :
   // (Used for ions in all physics lists, and, in the case of non-QGS-based physics lists,
   // also for pions, kaons, nucleons and hyperons.)  
   G4TheoFSGenerator* theFTFPmodel_aboveThreshold = new G4TheoFSGenerator( "FTFP" );
-  if(G4VERSION_NUMBER>=1100){
+  #if G4VERSION_NUMBER>=1100
     theFTFPmodel_aboveThreshold->SetMaxEnergy( G4HadronicParameters::Instance()->GetMaxEnergy() );
-  } else { theFTFPmodel_aboveThreshold->SetMaxEnergy(1e+08);}
+  #else 
+    theFTFPmodel_aboveThreshold->SetMaxEnergy(1e+08);
+  #endif
   theFTFPmodel_aboveThreshold->SetTransport( theCascade );
   theFTFPmodel_aboveThreshold->SetHighEnergyGenerator( theStringModel );
   // Model instance with constraint to be within two kinetic energy thresholds.
   // (Used in the case of QGS-based physics lists for pions, kaons, nucleons and hyperons.)  
   G4TheoFSGenerator* theFTFPmodel_constrained = new G4TheoFSGenerator( "FTFP" );
-  if(G4VERSION_NUMBER>=1100){
+  #if G4VERSION_NUMBER>=1100
     theFTFPmodel_constrained->SetMaxEnergy( G4HadronicParameters::Instance()->GetMaxEnergy() );
-  } else { theFTFPmodel_constrained->SetMaxEnergy(1e+08);}
+  #else 
+    theFTFPmodel_constrained->SetMaxEnergy(1e+08);
+  #endif
   theFTFPmodel_constrained->SetTransport( theCascade );
   theFTFPmodel_constrained->SetHighEnergyGenerator( theStringModel );
   // Model instance to be used down to zero kinetic energy, with eventual constraint
   // - in the case of QGS-based physics lists - to be below a kinetic energy threshold.
   // (Used for anti-baryons, anti-hyperons, and charmed and bottom hadrons.)
   G4TheoFSGenerator* theFTFPmodel_belowThreshold = new G4TheoFSGenerator( "FTFP" );
-  if(G4VERSION_NUMBER>=1100){ 
+  #if G4VERSION_NUMBER>=1100
     theFTFPmodel_belowThreshold->SetMaxEnergy( G4HadronicParameters::Instance()->GetMaxEnergy() );
-  } else { theFTFPmodel_belowThreshold->SetMaxEnergy(1e+08);}
+  #else 
+    theFTFPmodel_belowThreshold->SetMaxEnergy(1e+08);
+  #endif
   theFTFPmodel_belowThreshold->SetTransport( theCascade );
   theFTFPmodel_belowThreshold->SetHighEnergyGenerator( theStringModel );
 
   // Build the QGSP model (QGS/Preco)
   G4TheoFSGenerator* theQGSPmodel = new G4TheoFSGenerator( "QGSP" );
-  if(G4VERSION_NUMBER>=1100){
+  #if G4VERSION_NUMBER>=1100
     theQGSPmodel->SetMaxEnergy( G4HadronicParameters::Instance()->GetMaxEnergy() );
-  } else { theQGSPmodel->SetMaxEnergy(1e+08);}
+  #else 
+    theQGSPmodel->SetMaxEnergy(1e+08);
+  #endif
   theQGSPmodel->SetTransport( theCascade );
   G4QGSMFragmentation* theQgsmFragmentation = new G4QGSMFragmentation;
   G4ExcitedStringDecay* theQgsmStringDecay = new G4ExcitedStringDecay( theQgsmFragmentation );
@@ -283,23 +293,31 @@ HadronicGenerator::HadronicGenerator( const G4String physicsCase ) :
        fPhysicsCase == "QGSP_BERT"      ||
        fPhysicsCase == "QGSP_BIC" ) {
     G4double ftfpMinE;
-    if(G4VERSION_NUMBER>=1100){
+    #if G4VERSION_NUMBER>=1100
         ftfpMinE = G4HadronicParameters::Instance()->GetMinEnergyTransitionFTF_Cascade();
-    } else {ftfpMinE = 3000;}
+    #else 
+        ftfpMinE = 3000;
+    #endif
     G4double bertMaxE;
-    if(G4VERSION_NUMBER>=1100){
+    #if G4VERSION_NUMBER>=1100
       bertMaxE = G4HadronicParameters::Instance()->GetMaxEnergyTransitionFTF_Cascade();
-    } else { bertMaxE = 6000;}
+    #else 
+      bertMaxE = 6000;
+    #endif
     const G4double ftfpMinE_ATL =  9.0*CLHEP::GeV;
     const G4double bertMaxE_ATL = 12.0*CLHEP::GeV;
     G4double ftfpMaxE;
-    if(G4VERSION_NUMBER>=1100){
+    #if G4VERSION_NUMBER>=1100
         ftfpMaxE = G4HadronicParameters::Instance()->GetMaxEnergyTransitionQGS_FTF();
-    } else {ftfpMaxE = 25000;}
+    #else 
+        ftfpMaxE = 25000;
+    #endif
     G4double qgspMinE;
-    if(G4VERSION_NUMBER>1100){
+    #if G4VERSION_NUMBER>=1100
         qgspMinE = G4HadronicParameters::Instance()->GetMinEnergyTransitionQGS_FTF();
-    } else { qgspMinE = 12000;}
+    #else 
+        qgspMinE = 12000;
+    #endif
     theFTFPmodel->SetMinEnergy( 0.0 );
     theFTFPmodel_belowThreshold->SetMinEnergy( 0.0 );
     if ( fPhysicsCase == "FTFP_BERT_ATL" ) {
@@ -1032,7 +1050,7 @@ GenerateInteraction( G4ParticleDefinition* projectileDefinition, const G4double 
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+/*
 G4double HadronicGenerator::GetImpactParameter() const {
   G4double impactParameter = -999.0 * fermi;
   G4HadronicProcess* hadProcess = GetHadronicProcess();
@@ -1117,5 +1135,5 @@ G4int HadronicGenerator::GetNumberOfNNcollisions() const {
   }
   return numNNcollisions;
 }
-
+*/
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

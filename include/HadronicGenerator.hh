@@ -136,7 +136,7 @@ class HadronicGenerator {
     // immediately an empty "G4VParticleChange", i.e. without secondaries produced.
 
     inline G4HadronicProcess* GetHadronicProcess() const;
-    inline G4HadronicInteraction* GetHadronicInteraction() const;
+    //inline G4HadronicInteraction* GetHadronicInteraction() const;
     // Returns the hadronic process and the hadronic interaction, respectively,
     // that handled the last call of "GenerateInteraction".
 
@@ -169,10 +169,10 @@ inline G4HadronicProcess* HadronicGenerator::GetHadronicProcess() const {
 }
 
 
-inline G4HadronicInteraction* HadronicGenerator::GetHadronicInteraction() const {
+/*inline G4HadronicInteraction* HadronicGenerator::GetHadronicInteraction() const {
   return fLastHadronicProcess == nullptr ? nullptr
                                          : fLastHadronicProcess->GetHadronicInteraction();
-}
+}*/
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
