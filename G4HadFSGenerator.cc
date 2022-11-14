@@ -24,6 +24,7 @@
 #include "G4ParticleTable.hh"
 #include "G4IonTable.hh"
 #include "G4Version.hh"
+#include "G4UIcommand.hh"
 #if G4VERSION_NUMBER < 1100
 #include "g4root.hh"  // replaced by G4AnalysisManager.h  in G4 v11 and up
 #else
@@ -60,7 +61,7 @@ int main( int argc, char** argv ) {
   
   G4cout << "=== Using HadronicGenerator for final states sampling test, ===" << G4endl
          << "    this test is based on example Hadr09.                      " << G4endl;
-
+  G4cout << "=== Using Geant4: "<< G4VERSION_NUMBER << G4endl;
   // See the HadronicGenerator class for the possibilities and meaning of the "physics cases".
   // ( In short, it is the name of the Geant4 hadronic model used for the simulation of
   //   the collision, with the possibility of having a transition between two models in
