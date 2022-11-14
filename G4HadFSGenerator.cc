@@ -129,7 +129,7 @@ int main( int argc, char** argv ) {
   analysisManager->CreateH1("Momentum_conservation","Momentum_conservation",2000,-0.02,0.02);
   analysisManager->CreateH1("Neutron_kenergy","Neutron_kenergy",1000,0.0,1.1*energyProjectile);
   analysisManager->CreateH1("Pi0_energy","Pi0_energy",1000,0.0,1.1*energyProjectile);
-  analysisManager->CreateH1("E_loss","E_loss",2000,-1.0,2.0*bindingEnergy/CLHEP::GeV);
+  analysisManager->CreateH1("E_loss","E_loss",500,-1.0,2.0*bindingEnergy/CLHEP::GeV);
   analysisManager->CreateH1("Pi-_Pz","Pi-_Pz",100,-1.2*energyProjectile,1.2*energyProjectile);
   analysisManager->CreateH1("Pi-_Pz_wPt","Pi-_Pz_wPt",100,-1.2*energyProjectile,1.2*energyProjectile);
  
