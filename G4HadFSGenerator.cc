@@ -209,6 +209,16 @@ int main( int argc, char** argv ) {
       //
       auto particle = aChange->GetSecondary(j)->GetDynamicParticle();
 
+      //Printout with redo command true
+      //
+      if(redoEvent){
+        G4cout<< " particle: "<<particle->GetDefinition()->GetParticleName()
+              << " momentum (MeV): "<<particle->GetTotalMomentum()
+              << " energy (MeV): "<<particle->GetTotalEnergy()
+              << " k energy (MeV): "<<particle->GetKineticEnergy()
+              << G4endl;
+      }
+
       //Compute momentum conservation along z,
       //
       mz_conservation = mz_conservation - particle->Get4Momentum()[2]/CLHEP::GeV;
@@ -252,6 +262,7 @@ int main( int argc, char** argv ) {
     analysisManager->FillH1(1, neutron_kenergy);
     analysisManager->FillH1(2, pizero_energy);
     analysisManager->FillH1(3, e_loss);
+    if(saveRandomStatus){ G4cout<<"event "<<i<<" e_loss "<<e_loss<<G4endl; }
 
     neutron_kenergy = 0.;
     pizero_energy = 0.;
