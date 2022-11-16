@@ -1,12 +1,12 @@
 from ROOT import *
 
 
-def OverlapHisto(pl, energy):
-    file1043 = TFile(pl+"proton"+energy+"G4_Cu_1043.root")
-    file1051 = TFile(pl+"proton"+energy+"G4_Cu_1051.root")
-    file1063 = TFile(pl+"proton"+energy+"G4_Cu_1063.root")
-    file1071 = TFile(pl+"proton"+energy+"G4_Cu_1071.root")
-    file1103 = TFile(pl+"proton"+energy+"G4_Cu_1103.root")
+def OverlapHisto(pl, energy, material):
+    file1043 = TFile(pl+"proton"+energy+material+"_1043.root")
+    file1051 = TFile(pl+"proton"+energy+material+"_1051.root")
+    file1063 = TFile(pl+"proton"+energy+material+"_1063.root")
+    file1071 = TFile(pl+"proton"+energy+material+"_1071.root")
+    file1103 = TFile(pl+"proton"+energy+material+"_1103.root")
 
     h1eloss1043 = file1043.Get("E_loss")
     h1eloss1051 = file1051.Get("E_loss")
@@ -128,5 +128,5 @@ def OverlapHisto(pl, energy):
     outputfile.Close()
 
 
-OverlapHisto("FTFP", "10.0")
-OverlapHisto("BERT", "2.00")
+OverlapHisto("QGSP", "100.", "G4_N")
+#OverlapHisto("BERT", "2.00", "G4_N")
