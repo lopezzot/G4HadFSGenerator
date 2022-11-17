@@ -1,3 +1,4 @@
+// clang-format off
 //
 // ********************************************************************
 // * License and Disclaimer                                           *
@@ -1137,3 +1138,4 @@ G4int HadronicGenerator::GetNumberOfNNcollisions() const {
 }
 */
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+// clang-format on

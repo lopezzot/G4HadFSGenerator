@@ -1,3 +1,4 @@
+// clang-format off
 //
 // ********************************************************************
 // * License and Disclaimer                                           *
@@ -177,3 +178,4 @@ inline G4HadronicProcess* HadronicGenerator::GetHadronicProcess() const {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
+// clang-format on
