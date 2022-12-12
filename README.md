@@ -16,3 +16,6 @@ example, FTFP_BERT pl with 10 GeV pi- on copper without seed saving or event red
 ```
 ./G4HadFSGenerator -pl FTFP_BERT -p pi- -e 10 -m G4_Cu -seed 0 -redo 0
 ```
+
+## Selected Presentations
+- 29/11/2022, Geant4 simulation bi-weekly meeting: [**Investigation on G4HadronInelasticProcess final states**](https://indico.cern.ch/event/1226079/contributions/5158618/attachments/2556416/4405327/lopezzot_29_11_2022.pdf)
