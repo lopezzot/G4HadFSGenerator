@@ -250,8 +250,8 @@ int main(int argc, char **argv) {
 
       // Compute energy lost to release nucleons
       // how: kinetic energy projectile - kinetic energy of nucleons (p and n)
-      //- kinetic energy of mesons - kinetic energy of nuclear fragments (baryon
-      //number > 1)
+      // - total energy of mesons - kinetic energy of nuclear fragments (baryon
+      // number > 1)
       //
       if (particle->GetDefinition()->GetBaryonNumber() >= 1) {
         e_loss = e_loss - particle->GetKineticEnergy() / CLHEP::GeV;
@@ -270,7 +270,7 @@ int main(int argc, char **argv) {
         pizero_energy += particle->GetTotalEnergy() / CLHEP::GeV;
       }
 
-      // Fille h1 pi- pz and pt
+      // Fill h1 pi- pz and pt
       //
       if (particle->GetDefinition() == G4PionMinus::PionMinus()) {
 
